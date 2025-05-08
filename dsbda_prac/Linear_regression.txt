@@ -1,0 +1,61 @@
+# Importing necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
+
+# Load the Boston Housing dataset
+df = pd.read_csv('BostonHousing.csv')
+
+# Display first few rows
+print("Dataset Preview:\n", df.head())
+
+# Check for missing values
+print("\nMissing values:")
+print(df.isnull().sum())
+
+# Drop rows with missing values
+df.dropna(inplace=True)
+
+# Define features and target
+X = df.drop('medv', axis=1)
+y = df['medv']
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42
+)
+
+# Train the Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predict on test data
+y_pred = model.predict(X_test)
+
+# Evaluation metrics
+mae = metrics.mean_absolute_error(y_test, y_pred)
+mse = metrics.mean_squared_error(y_test, y_pred)
+rmse = np.sqrt(mse)
+r2 = metrics.r2_score(y_test, y_pred)
+
+# Display metrics
+print(f"\nModel Performance:")
+print(f"Mean Absolute Error (MAE): {mae:.2f}")
+print(f"Mean Squared Error (MSE): {mse:.2f}")
+print(f"Root Mean Squared Error (RMSE): {rmse:.2f}")
+print(f"R² Score: {r2:.2f}")
+
+# Plot Actual vs Predicted
+plt.figure(figsize=(8, 6))
+plt.scatter(y_test, y_pred, color='blue', edgecolors='black')
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--')
+plt.xlabel("Actual Prices")
+plt.ylabel("Predicted Prices")
+plt.title("Actual vs Predicted House Prices")
+plt.grid(True)
+plt.show()

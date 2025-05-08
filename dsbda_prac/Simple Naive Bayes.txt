@@ -1,0 +1,55 @@
+# Import required libraries
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+
+# Load the dataset
+df = pd.read_csv('Iris.csv')
+
+# Separate features and target
+X = df.drop(columns=['Species'])  # Features
+y = df['Species']                 # Target class
+
+# Split into training and testing sets (80% train, 20% test)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize and train Naïve Bayes classifier
+model = GaussianNB()
+model.fit(X_train, y_train)
+
+# Predict using the model
+y_pred = model.predict(X_test)
+
+# Show predictions (optional)
+print("Predicted Labels:\n", y_pred)
+
+# Confusion Matrix
+cm = confusion_matrix(y_test, y_pred, labels=model.classes_)
+print("Confusion Matrix:\n", cm)
+
+# Calculate evaluation metrics
+accuracy = accuracy_score(y_test, y_pred)
+error_rate = 1 - accuracy
+precision = precision_score(y_test, y_pred, average='macro')  # average macro for multiclass
+recall = recall_score(y_test, y_pred, average='macro')
+f1 = f1_score(y_test, y_pred, average='macro')
+
+print(f"Accuracy      : {accuracy:.2f}")
+print(f"Error Rate    : {error_rate:.2f}")
+print(f"Precision     : {precision:.2f}")
+print(f"Recall        : {recall:.2f}")
+print(f"F1 Score      : {f1:.2f}")
+
+# Calculate TP, FP, FN, TN for each class
+for i, label in enumerate(model.classes_):
+    TP = cm[i, i]
+    FP = cm[:, i].sum() - TP
+    FN = cm[i, :].sum() - TP
+    TN = cm.sum() - (TP + FP + FN)
+    
+    print(f"\nClass: {label}")
+    print(f"True Positives (TP): {TP}")
+    print(f"False Positives (FP): {FP}")
+    print(f"False Negatives (FN): {FN}")
+    print(f"True Negatives (TN): {TN}")

@@ -1,0 +1,51 @@
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the titanic dataset
+titanic = sns.load_dataset('titanic')
+
+# Display the first few rows of the dataset
+print(titanic.head())
+
+# 1. Survival Count
+sns.countplot(x='survived', data=titanic)
+plt.title("Survival Count")
+plt.show()
+
+# 2. Survival by Gender
+sns.countplot(x='sex', hue='survived', data=titanic)
+plt.title("Survival by Gender")
+plt.show()
+
+# 3. Survival by Class
+sns.countplot(x='class', hue='survived', data=titanic)
+plt.title("Survival by Passenger Class")
+plt.show()
+
+# 4. Age Distribution
+sns.histplot(titanic['age'].dropna(), kde=True)
+plt.title("Age Distribution")
+plt.xlabel("Age")
+plt.ylabel("Number of Passengers")
+plt.show()
+
+# 5. Fare Distribution
+sns.histplot(titanic['fare'], bins=30, kde=True)
+plt.title("Ticket Fare Distribution")
+plt.xlabel("Fare")
+plt.ylabel("Number of Passengers")
+plt.show()
+
+# 6. Fare Distribution (Log Scale for better visibility)
+sns.histplot(titanic['fare'], bins=30, kde=True)
+plt.xscale('log')
+plt.title("Ticket Fare Distribution (Log Scale)")
+plt.xlabel("Fare (Log Scale)")
+plt.ylabel("Number of Passengers")
+plt.show()
+
+# 7. Correlation Heatmap (for numeric features)
+plt.figure(figsize=(10, 6))
+sns.heatmap(titanic.corr(numeric_only=True), annot=True, cmap="coolwarm", fmt=".2f")
+plt.title("Correlation Heatmap")
+plt.show()

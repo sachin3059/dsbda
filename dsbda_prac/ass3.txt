@@ -1,0 +1,86 @@
+Descriptive Statistics - Measures of Central Tendency and variability
+
+import pandas as pd
+
+# ------------------ Part 1: Custom Dataset ------------------
+
+data = {
+    'Name': [
+        'Zane', 'Cathy', 'Leo', 'Mona', 'Alice', 'David', 'Grace', 'Nate', 'Ben', 'Olivia',
+        'Bob', 'Victor', 'Quinn', 'Xander', 'Ella', 'Paul', 'Frank', 'Kate', 'Wendy', 'Henry',
+        'Jack', 'Tina', 'Sam', 'Ivy', 'Cara', 'Rita', 'Yara', 'Dan', 'Uma', 'Abby'
+    ],
+    'Age': [
+        42, 21, 30, 28, 22, 25, 20, 26, 44, 33,
+        24, 40, 29, 41, 23, 31, 19, 30, 38, 22,
+        21, 30, 34, 24, 43, 32, 39, 45, 36, 19
+    ],
+    'Income': [
+        62500, 33000, 47000, 50000, 32000, 35000, 34000, 46000, 61500, 49000,
+        31000, 63000, 52000, 60000, 30000, 51000, 29000, 47000, 61000, 36000,
+        30000, 48500, 47000, 31000, 63500, 49500, 64000, 64500, 62000, 29000
+    ]
+}
+
+df = pd.DataFrame(data)
+
+# Create Age Groups
+bins = [17, 25, 35, 45]
+labels = ['18-25', '26-35', '36-45']
+df['Age_Group'] = pd.cut(df['Age'], bins=bins, labels=labels)
+
+# Summary statistics grouped by Age Group
+grouped = df.groupby('Age_Group', observed=True)['Income'].agg(['mean', 'median', 'min', 'max', 'std'])
+print("=== Summary Statistics (Grouped by Age Range) ===")
+print(grouped)
+
+# ------------------ Part 2: Iris Dataset ------------------
+
+# Load iris.csv (must be in working directory)
+ds = pd.read_csv('iris.csv')
+
+# Summary statistics for each species
+grouped_stats = ds.groupby('Species').agg({
+    'SepalLengthCm': ['mean', 'median', 'min', 'max', 'std'],
+    'SepalWidthCm': ['mean', 'median', 'min', 'max', 'std'],
+    'PetalLengthCm': ['mean', 'median', 'min', 'max', 'std'],
+    'PetalWidthCm': ['mean', 'median', 'min', 'max', 'std'],
+})
+
+print("\n=== Summary Statistics by Species ===")
+print(grouped_stats)
+
+# Create a list of SepalLengthCm values for each species
+species_numeric_list = {
+    species: group['SepalLengthCm'].tolist()
+    for species, group in ds.groupby('Species')
+}
+
+print("\n=== SepalLengthCm List by Species ===")
+for species, values in species_numeric_list.items():
+    print(f"{species}: {values[:5]}...")  # print only first 5 for brevity
+
+# Function to calculate detailed stats
+def basic_statistics(group):
+    return {
+        'Mean': group.mean(),
+        'Standard Deviation': group.std(),
+        '25th Percentile': group.quantile(.25),
+        '50th Percentile': group.median(),
+        '75th Percentile': group.quantile(.75),
+        'Minimum': group.min(),
+        'Maximum': group.max()
+    }
+
+# Apply function to each species
+setosa_stats = basic_statistics(ds[ds['Species'] == 'Iris-setosa']['SepalLengthCm'])
+versicolor_stats = basic_statistics(ds[ds['Species'] == 'Iris-versicolor']['SepalLengthCm'])
+virginica_stats = basic_statistics(ds[ds['Species'] == 'Iris-virginica']['SepalLengthCm'])
+
+# Display results
+print("\n=== Statistics for Iris-setosa ===")
+print(setosa_stats)
+print("\n=== Statistics for Iris-versicolor ===")
+print(versicolor_stats)
+print("\n=== Statistics for Iris-virginica ===")
+print(virginica_stats)

@@ -1,0 +1,82 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from scipy.stats import zscore
+
+# Dataset
+data = {
+    'name': pd.Series(['Alice', 'Bob', 'Charlie', 'David', 'Emma', 'Frank', 'Grace', 'Henry', 'Ivy', 'Jack',
+                       'Katie', 'Liam', 'Mia', 'Nate', 'Olivia', 'Peter', 'Quinn', 'Rachel', 'Sam', 'Tyler']),
+    'division': pd.Series(['A', 'B', 'A', 'C', 'B', 'A', 'B', 'C', 'B', 'A', 'C', 'B', 'A', 'C', 'B', 'A', 'C',
+                           'B', 'A', 'C']),
+    'marks1': pd.Series([70, 80, 85, 90, 10, 65, 75, 60, 50, 85, np.nan, 55, 80, 70, 75, 40, 8, 80, 85, 65]),
+    'marks2': pd.Series([60, 70, 75, 80, 25, 55, 65, 50, 40, 75, 80, 45, 365, 60, np.nan, 30, 80, 70, 75, 11]),
+    'marks3': pd.Series([5, 60, 65, 70, 75, 45, 55, 40, 30, 65, 70, 35, 60, 50, 55, 20, 70, 60, np.nan, 45])
+}
+df = pd.DataFrame(data)
+
+
+# Check for missing values
+print("Missing values:\n", df.isnull().sum())
+
+# Handling missing values with mean imputation
+df['marks1'].fillna(df['marks1'].mean(), inplace=True)
+df['marks2'].fillna(df['marks2'].mean(), inplace=True)
+df['marks3'].fillna(df['marks3'].mean(), inplace=True)
+
+
+# Define a function for detecting outliers
+def detect_outliers_iqr(column):
+    Q1 = column.quantile(0.25)
+    Q3 = column.quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return column[(column < lower_bound) | (column > upper_bound)]
+
+# Detect outliers
+outliers_marks1 = detect_outliers_iqr(df['marks1'])
+outliers_marks2 = detect_outliers_iqr(df['marks2'])
+outliers_marks3 = detect_outliers_iqr(df['marks3'])
+
+print("\nOutliers in marks1:\n", outliers_marks1)
+print("\nOutliers in marks2:\n", outliers_marks2)
+print("\nOutliers in marks3:\n", outliers_marks3)
+
+
+# Capping outliers using IQR method as a suitable alternative
+def cap_outliers(series):
+    Q1 = series.quantile(0.25)
+    Q3 = series.quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    return np.where(series < lower, lower, np.where(series > upper, upper, series))
+
+df['marks1'] = cap_outliers(df['marks1'])
+df['marks2'] = cap_outliers(df['marks2'])
+df['marks3'] = cap_outliers(df['marks3'])
+
+
+
+
+print("Skewness before transformation:", df['marks3'].skew())
+# Visualize original marks3
+import matplotlib.pyplot as plt
+sns.histplot(df['marks3'], kde=True)
+plt.title("Distribution of marks3 - Before Log Transformation")
+plt.show()
+
+
+
+
+df['log_marks3'] = np.log(df['marks3'] + 1)
+# Check skewness after transformation
+print("Skewness after transformation:", df['log_marks3'].skew())
+
+
+# Visualize transformed marks3
+sns.histplot(df['log_marks3'], kde=True, color='green')
+plt.title("Distribution of marks3 - After Log Transformation")
+plt.show()

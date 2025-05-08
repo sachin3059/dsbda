@@ -1,0 +1,94 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+import nltk
+nltk.download('all')
+
+
+file = open('sample.txt', 'r')
+file
+
+content = file.read();
+content
+
+# tokenization
+
+from nltk.tokenize import sent_tokenize
+sentence = sent_tokenize(content)
+sentence
+
+from nltk.tokenize import word_tokenize
+words = word_tokenize(content)
+words
+
+
+from nltk.tokenize import RegexpTokenizer
+tokenizer = RegexpTokenizer(f'\w+')
+words = tokenizer.tokenize(content)
+words
+
+
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+stopWords = set(stopwords.words('english'))
+print(stopWords)
+
+for sen in sentence:
+    # word tokenize
+    Words = word_tokenize(sen)
+    #print(Words)
+    #filter stopwords from these words
+    filteredWords = [word.lower() for word in Words if word.lower() not in stopWords]
+    print(f"Words without stopwords  {filteredWords}" )
+    print(f"Words with stopwords {Words}")
+
+
+
+
+#pos tagging
+print('pos tagging' , (nltk.pos_tag(filteredWords)) );
+
+
+
+#stemming and lemmelization
+from nltk.stem import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+
+
+# word tokenize
+stemmer = PorterStemmer()
+for word in Words:
+    print(f"{word} - After-Stemming = {stemmer.stem(word)}")
+
+
+
+# lemmatization
+lemmatizer = WordNetLemmatizer()
+for word in Words:
+    print(f"{word}: {lemmatizer.lemmatize(word)}" );
+
+
+
+# term frequecy and inverse document frequency
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+#TfidfVectorizer -> return => matrix which contains all the feature
+tokenizer = TfidfVectorizer()
+
+new_sentence = [''.join(sentence)]
+new_sentence
+
+def calculate_tfIdf(document):
+    tokenizer = TfidfVectorizer()
+    tf_matrix = tokenizer.fit_transform(document)
+    features_names = tokenizer.get_feature_names_out()
+    return tf_matrix, features_names
+
+
+document = new_sentence
+
+tf_matrix, feature_names = calculate_tfIdf(document);
+print('TFIDF')
+feature_names, tf_matrix.toarray()
